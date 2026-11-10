@@ -1,4 +1,4 @@
-XISO Droid, based on xvddfs
+XISO Droid, based on xdvdfs
 
 # xdvdfs
 
