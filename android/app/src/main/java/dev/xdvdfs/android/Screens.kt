@@ -36,7 +36,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private const val GITHUB_URL = "https://github.com/antangelo/xdvdfs"
+private const val GITHUB_URL = "https://github.com/BunBunMikael/XISO-Droid"
+private const val ORIGINAL_GITHUB_URL = "https://github.com/antangelo/xdvdfs"
 
 // -- header and information ------------------------------------------------------
 
@@ -149,6 +150,15 @@ fun Footer() {
                 .heightIn(min = 44.dp)
                 .clickable { runCatching { uriHandler.openUri(GITHUB_URL) } }
                 .padding(top = 12.dp),
+            color = bp.primary,
+            fontSize = 14.sp,
+            textDecoration = TextDecoration.Underline,
+        )
+        Text(
+            "View original project on GitHub",
+            modifier = Modifier
+                .heightIn(min = 44.dp)
+                .clickable { runCatching { uriHandler.openUri(ORIGINAL_GITHUB_URL) } },
             color = bp.primary,
             fontSize = 14.sp,
             textDecoration = TextDecoration.Underline,
