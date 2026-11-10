@@ -45,7 +45,7 @@ fun Header(dark: Boolean, onToggleDark: () -> Unit) {
     val bp = LocalBp.current
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
-            "XISO Packer",
+            "XISO Droid",
             modifier = Modifier.weight(1f),
             color = bp.text,
             fontSize = 28.sp,
