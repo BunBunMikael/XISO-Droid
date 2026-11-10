@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">XISO Packer</string>
+    <string name="app_name">XISO Droid</string>
     <string name="channel_progress">Job progress</string>
     <string name="channel_done">Job results</string>
     <string name="cancel">Cancel</string>
