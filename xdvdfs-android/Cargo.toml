@@ -1,0 +1,23 @@
+[package]
+name = "xdvdfs-android"
+description = "Android (JNI) bindings used by the xdvdfs Android app"
+keywords = ["android", "jni", "filesystem", "xdvdfs"]
+publish = false
+
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[lib]
+name = "xdvdfs_android"
+crate-type = ["cdylib"]
+
+[dependencies]
+# The whole library is blocking (it runs on a worker thread owned by the app),
+# so the core is built in `sync` mode, exactly like `xdvdfs-cli --features sync`.
+xdvdfs = { path = "../xdvdfs-core", version = "0.9.0", features = ["sync"] }
+ciso = { version = "0.3.0", default-features = false }
+anyhow = "1.0.71"
+jni = "0.21.1"

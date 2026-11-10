@@ -1,0 +1,93 @@
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+  pull_request:
+  workflow_dispatch:
+name: Android
+
+env:
+  NDK_VERSION: 28.0.12433566
+  ANDROID_PLATFORM: android-35
+  ANDROID_BUILD_TOOLS: 35.0.0
+
+jobs:
+  build_apk:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Test native library (host)
+        run: cargo test -p xdvdfs-android
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install Android SDK components
+        run: |
+          SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
+          SDKMANAGER="$(command -v sdkmanager || echo "$SDK/cmdline-tools/latest/bin/sdkmanager")"
+          yes | "$SDKMANAGER" --sdk_root="$SDK" --licenses > /dev/null || true
+          "$SDKMANAGER" --sdk_root="$SDK" \
+            "platforms;${ANDROID_PLATFORM}" \
+            "build-tools;${ANDROID_BUILD_TOOLS}" \
+            "ndk;${NDK_VERSION}"
+          echo "ANDROID_NDK_HOME=$SDK/ndk/${NDK_VERSION}" >> "$GITHUB_ENV"
+
+      - name: Install cargo-ndk
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-ndk
+
+      - name: Build native libraries
+        env:
+          # Android 15+ devices may use 16 KiB memory pages
+          RUSTFLAGS: -C link-arg=-Wl,-z,max-page-size=16384
+        run: |
+          cargo ndk \
+            -t arm64-v8a -t armeabi-v7a -t x86_64 \
+            --platform 26 \
+            -o android/app/src/main/jniLibs \
+            build --release -p xdvdfs-android
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build APK
+        working-directory: ./android
+        run: ./gradlew --no-daemon assembleRelease
+
+      - name: Name APK
+        run: |
+          mkdir -p dist
+          cp android/app/build/outputs/apk/release/app-release.apk \
+            "dist/xdvdfs-android-${GITHUB_SHA::7}.apk"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: xdvdfs-android-${{ github.sha }}
+          path: dist/*.apk
+          if-no-files-found: error
+
+      - name: Attach APK to release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.apk

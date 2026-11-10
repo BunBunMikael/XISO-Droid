@@ -1,0 +1,9 @@
+/target
+*.iso
+*.xiso
+*.cso
+*.ciso
+**/dist/**
+**/*.log
+tests/**/__pycache__
+result

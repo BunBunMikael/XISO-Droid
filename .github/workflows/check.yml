@@ -1,0 +1,36 @@
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+  pull_request:
+name: Check
+
+jobs:
+  check:
+    name: Check and lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Check build
+        run: cargo check --workspace --exclude xdvdfs-android
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Check lints
+        run: cargo clippy --workspace --exclude xdvdfs-android -- -D warnings
+
+      - name: Run tests
+        run: cargo test
+
+      - name: Run test suite
+        run: cd tests && python3 test.py
