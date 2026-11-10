@@ -29,3 +29,5 @@ Images can be repacked from an existing ISO image
 This will create an iso that matches 1-to-1 with the input image.
 
 #### Additional images can be compressed or unpacked
+
+Acknowledgment: should the original devs request it, I will perform changes to this repository or remkve it from public view if asked to remove it
